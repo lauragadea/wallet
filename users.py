@@ -10,9 +10,10 @@ class UsersResource(object):
 		try:
 			cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='walletdb')
 			cursor = cnx.cursor()
-			query = "SELECT persona.dni, nombre, apellido, saldo FROM persona INNER JOIN cuentas ON persona.dni = cuentas.dni where persona.dni=30564192"
+			dni = 30564192
+			query = "SELECT persona.dni, nombre, apellido, saldo FROM persona INNER JOIN cuentas ON persona.dni = cuentas.dni where persona.dni = %(dni)s"
 			
-			cursor.execute(query)			
+			cursor.execute(query, {'dni':dni})			
 			rows = cursor.fetchall()
 			usuario = []
 			for row in rows:

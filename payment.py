@@ -2,6 +2,7 @@ import falcon
 import json
 import mysql.connector
 import datetime
+
 #from settings.config import CONFIG
 
 
@@ -45,7 +46,7 @@ class PaymentResource(object):
 			cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='walletdb')
 			cursor = cnx.cursor()
 			#FECHA!!!
-			#a = datetime.datetime.now()
+			
 			#seleccionar todos los productos que me mande el cliente
 			dni = 29718241
 			producto = 2
@@ -53,15 +54,15 @@ class PaymentResource(object):
 			
 
 			cursor.execute(query, {'producto':producto})			
+			fecha = datetime.datetime.now()
 			
-
 			#for row in rows:
 			#	diccionario = {'id_producto'}
 			for valor in cursor:
 				id_producto = valor[0]
 				#imprime el precio
 				total = valor[2]
-			print total
+			
 			query2 = "SELECT saldo FROM cuentas WHERE dni = %(dni)s"
 
 			cursor.execute(query2, {'dni':dni})
@@ -71,10 +72,10 @@ class PaymentResource(object):
 			print saldo
 			
 			if saldo > total:
-				print "si le alcanza"
+				
 				#no hardcodear id_producto, ni la fecha ni el dni
 				producto = 3
-				fecha = '2016-11-15 19:20:03'
+				
 				query3 = "INSERT INTO compras (dni, id_producto, fecha) VALUES (%s, %s, %s)"
 				data = (dni, producto, fecha)
 				cursor.execute(query3, data)
@@ -82,7 +83,7 @@ class PaymentResource(object):
 				nuevo_saldo = saldo - total;
 				#OJO CON LA FECHA, NO FUNCIONA
 				query4 = "UPDATE cuentas SET saldo = %(saldo)s, fecha = %(fecha)s WHERE dni = %(dni)s"
-				print query4
+				
 				cursor.execute(query4, {'saldo':nuevo_saldo, 'fecha':fecha, 'dni':dni})
 				cnx.commit()
 
