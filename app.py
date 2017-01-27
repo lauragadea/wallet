@@ -15,6 +15,7 @@ purchases = purchases.PurchasesResource()
 
 api.add_route('/usuario', users)
 api.add_route('/saldo', account)
+api.add_route('/saldo/{saldo_nuevo}', account)
 api.add_route('/pago', payment)
 api.add_route('/productos', products)
-api.add_route('/compras', purchases)
+api.add_route('/movimientos', purchases)

@@ -49,21 +49,13 @@ class PaymentResource(object):
 			
 			#seleccionar todos los productos que me mande el cliente
 			dni = 29718241
-			producto = 2
-			query = "SELECT * FROM productos WHERE id_producto = %(producto)s"
+			id_cuenta = 1
+			id_concepto = 1
+			total = 100
 			
-
-			cursor.execute(query, {'producto':producto})			
 			fecha = datetime.datetime.now()
 			
-			#for row in rows:
-			#	diccionario = {'id_producto'}
-			for valor in cursor:
-				id_producto = valor[0]
-				#imprime el precio
-				total = valor[2]
-			
-			query2 = "SELECT saldo FROM cuentas WHERE dni = %(dni)s"
+			query2 = "SELECT saldo FROM cuenta WHERE dni = %(dni)s"
 
 			cursor.execute(query2, {'dni':dni})
 
@@ -73,16 +65,14 @@ class PaymentResource(object):
 			
 			if saldo > total:
 				
-				#no hardcodear id_producto, ni la fecha ni el dni
-				producto = 3
-				
-				query3 = "INSERT INTO compras (dni, id_producto, fecha) VALUES (%s, %s, %s)"
-				data = (dni, producto, fecha)
+									
+				query3 = "INSERT INTO movimiento (id_concepto, id_cuenta, monto, fecha) VALUES (%s, %s, %s, %s)"
+				data = (id_concepto, id_cuenta, total, fecha)
 				cursor.execute(query3, data)
 				cnx.commit()
 				nuevo_saldo = saldo - total;
 				#OJO CON LA FECHA, NO FUNCIONA
-				query4 = "UPDATE cuentas SET saldo = %(saldo)s, fecha = %(fecha)s WHERE dni = %(dni)s"
+				query4 = "UPDATE cuenta SET saldo = %(saldo)s, fecha = %(fecha)s WHERE dni = %(dni)s"
 				
 				cursor.execute(query4, {'saldo':nuevo_saldo, 'fecha':fecha, 'dni':dni})
 				cnx.commit()

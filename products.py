@@ -16,7 +16,7 @@ class ProductsResource(object):
 			rows = cursor.fetchall()
 			productos = []
 			for row in rows:
-				diccionario = {'descripcion':row[1], 'precio':row[2]}
+				diccionario = {'id': row[0], 'descripcion':row[1], 'precio':row[2]}
 				productos.append(diccionario)
 
 			resp.body = json.dumps(productos)

@@ -8,15 +8,16 @@ class PurchasesResource(object):
 	def on_get(self, req, resp):
 		
 		try:
+			dni = 30564192
 			cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='walletdb')
 			cursor = cnx.cursor()
-			query = "SELECT  descripcion, precio, fecha FROM compras INNER JOIN productos ON compras.id_producto = productos.id_producto where dni = 30564192 limit 5"
+			query = "SELECT concepto.descripcion, movimiento.fecha, movimiento.monto FROM concepto INNER JOIN movimiento ON movimiento.id_concepto = concepto.id_concepto INNER JOIN cuenta ON cuenta.id_cuenta = movimiento.id_cuenta WHERE cuenta.dni = %(dni)s LIMIT 5"
 			
-			cursor.execute(query)			
+			cursor.execute(query, {'dni':dni})			
 			rows = cursor.fetchall()
 			listado = []
 			for row in rows:
-				diccionario = {'descripcion':row[0], 'precio':row[1], 'fecha':row[2]}
+				diccionario = {'descripcion':row[0], 'fecha':row[1], 'monto':row[2]}
 				listado.append(diccionario)
 
 			#ordeno por fecha

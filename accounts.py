@@ -1,6 +1,7 @@
 import falcon
 import json
 import mysql.connector
+import datetime
 
 class AccountsResource(object):
 
@@ -11,7 +12,7 @@ class AccountsResource(object):
 			cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='walletdb')
 			cursor = cnx.cursor()
 			#dni = 30564192
-			query = "SELECT saldo FROM cuentas where dni = %(dni)s"
+			query = "SELECT saldo FROM cuenta where dni = %(dni)s"
 			#LEER parametro y guardar aca
 			dni = 30564192
 			cursor.execute(query, {'dni':dni })			
@@ -38,30 +39,44 @@ class AccountsResource(object):
 		resp.status = falcon.HTTP_200
 
 	#carga credito en la billetera virtual
-	#viene con el dato de cuanta plata carga el usuario
-	def on_post(self, req, resp):
+	#viene con el dato del nuevo saldo
+	def on_post(self, req, resp, saldo_nuevo):
 		"""Handles POST requests"""
 		try:
 			cnx = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='walletdb')
 			cursor = cnx.cursor()
 			
+			fecha = datetime.datetime.today().strftime("%Y-%m-%d")
+			print fecha
+			
+			
 			#LEER parametro y guardar aca
 			dni=30564192
-			#LEER parametro y guardar aca
-			saldo_a_cargar = 25
-			query = "SELECT saldo FROM cuentas WHERE dni = %(dni)s"
-			cursor.execute(query, {'dni':dni})			
-			rows = cursor.fetchall()
-			
-			for row in rows:
-				saldo_viejo = row[0]
+			#ojooo, nTENDRIA QUE TRAERME EL SALDO VIEJO PARA ASENTAR EN MOVIMIENTOS EL SALDo QUE CARGO
+			monto = 0
+			query0 = "SELECT saldo FROM cuenta where dni = %(dni)s"
+			cursor.execute(query0, {'dni':dni})
 
-			saldo_nuevo = saldo_viejo + saldo_a_cargar
+			for valor in cursor:
+				saldo_viejo = valor[0] 
+			print saldo_viejo
+			monto = int(saldo_nuevo) - saldo_viejo
 			
 			
-			query2 = "UPDATE cuentas SET saldo = %(saldo)s WHERE DNI = %(dni)s"
-			cursor.execute(query2, {'saldo':saldo_nuevo, 'dni':dni})
+			query = "UPDATE cuenta SET saldo = %(saldo)s WHERE DNI = %(dni)s"
+			cursor.execute(query, {'saldo':saldo_nuevo,'dni':dni})
 			
+			cnx.commit()
+
+			query2 = "INSERT INTO movimiento (id_concepto, id_cuenta, monto, fecha) VALUES (%s, %s, %s, %s)"
+			#NO HARDCODEAR
+			id_concepto = 2
+			id_cuenta = 1
+			#fecha = '2017-02-02'
+			data = (id_concepto, id_cuenta, monto, fecha)
+
+			cursor.execute(query2, data)
+
 			cnx.commit()
 
 			resp.body = json.dumps(saldo_nuevo)
