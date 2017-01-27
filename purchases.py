@@ -4,8 +4,15 @@ import mysql.connector
 
 class PurchasesResource(object):
 
-	#trae las ultimas 5 compras del usuario
+	#trae los ultimos 5 movimientos del usuario
 	def on_get(self, req, resp):
+
+		def date_handler(obj):
+			if hasattr(obj, 'isoformat'):
+				return obj.isoformat()
+			else:
+				raise TypeError
+		
 		
 		try:
 			dni = 30564192
@@ -22,7 +29,7 @@ class PurchasesResource(object):
 
 			#ordeno por fecha
 			listado_ordenado = sorted(listado, key=lambda k:k['fecha'])
-			resp.body = json.dumps(listado_ordenado)
+			resp.body = json.dumps(listado_ordenado, default=date_handler)
 			resp.status = falcon.HTTP_200
 			cursor.close()
 			cnx.close()
@@ -31,4 +38,10 @@ class PurchasesResource(object):
 			resp.body = "ERROR: {}".format(e)
 
 		resp.status = falcon.HTTP_200
-		
+
+		def date_handler(obj):
+			if hasattr(obj, 'isoformat'):
+				return obj.isoformat()
+			else:
+				raise TypeError
+			
